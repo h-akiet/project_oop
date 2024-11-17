@@ -1,0 +1,71 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "E:\\Project_OOP\\user\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{40F5BA30-5985-462B-A0B3-6D1ACDF837E5}|user\\user.vcxproj|E:\\Project_OOP\\user\\user\\Action.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{40F5BA30-5985-462B-A0B3-6D1ACDF837E5}|user\\user.vcxproj|solutionrelative:user\\Action.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{40F5BA30-5985-462B-A0B3-6D1ACDF837E5}|user\\user.vcxproj|E:\\Project_OOP\\user\\user\\User.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{40F5BA30-5985-462B-A0B3-6D1ACDF837E5}|user\\user.vcxproj|solutionrelative:user\\User.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{40F5BA30-5985-462B-A0B3-6D1ACDF837E5}|user\\user.vcxproj|E:\\Project_OOP\\user\\user\\Account.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{40F5BA30-5985-462B-A0B3-6D1ACDF837E5}|user\\user.vcxproj|solutionrelative:user\\Account.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Action.h",
+              "DocumentMoniker": "E:\\Project_OOP\\user\\user\\Action.h",
+              "RelativeDocumentMoniker": "user\\Action.h",
+              "ToolTip": "E:\\Project_OOP\\user\\user\\Action.h",
+              "RelativeToolTip": "user\\Action.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-11-17T05:47:38.559Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Account.h",
+              "DocumentMoniker": "E:\\Project_OOP\\user\\user\\Account.h",
+              "RelativeDocumentMoniker": "user\\Account.h",
+              "ToolTip": "E:\\Project_OOP\\user\\user\\Account.h",
+              "RelativeToolTip": "user\\Account.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-11-17T05:33:52.991Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "User.h",
+              "DocumentMoniker": "E:\\Project_OOP\\user\\user\\User.h",
+              "RelativeDocumentMoniker": "user\\User.h",
+              "ToolTip": "E:\\Project_OOP\\user\\user\\User.h",
+              "RelativeToolTip": "user\\User.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-11-17T05:25:58.146Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
