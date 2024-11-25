@@ -37,12 +37,9 @@ public:
         this->accountID = 0;
         this->amount = 0.0;
         this->date = {0, 0, 0};
-        this->note = "";
-        this->category = "";
-        this->paymentMethod = "";
     }
 
-    void addTransaction() //Cho phép người dùng thêm một giao dịch mới
+    void addTransaction() // Cho phép người dùng thêm một giao dịch mới
     {
         cout << "Enter transaction details:\n";
 
@@ -53,7 +50,7 @@ public:
         cin >> this->accountID;
 
         cout << "Transaction Type: ";
-        cin.ignore(); // Để loại bỏ ký tự thừa trong buffer
+        cin.ignore(); // Để loại bỏ ký tự thừa
         getline(cin, this->transactionType);
 
         cout << "Amount: ";
@@ -63,13 +60,13 @@ public:
         cin >> this->date.day >> this->date.month >> this->date.year;
 
         cout << "Note: ";
-        cin.ignore(); // Để loại bỏ ký tự thừa 
+        cin.ignore(); // Để loại bỏ ký tự thừa
         getline(cin, this->note);
 
         cout << "Category: ";
         getline(cin, this->category);
 
-        cout << "Payment Method: ";
+        cout << "Payment Method (e.g., Cash, Credit): ";
         getline(cin, this->paymentMethod);
 
         ofstream outfile("transactions.csv", ios::app); // Mở file ở chế độ ghi
@@ -86,19 +83,19 @@ public:
             outfile.close();
             cout << "Transaction added successfully!\n";
         }
-        else //Nếu file không mở được
+        else // Nếu file không mở được
         {
             cerr << "Error opening file for writing.\n";
         }
     }
 
-    void editTransaction() //Cho phép người dùng chỉnh sửa một giao dịch nếu ID giao dịch cần chỉnh sửa có tồn tại
+    void editTransaction() // Cho phép người dùng chỉnh sửa một giao dịch nếu ID giao dịch cần chỉnh sửa có tồn tại
     {
-        cout << "Enter the transaction ID to edit: "; //Tìm kiếm ID giao dịch cần chỉnh sửa
+        cout << "Enter the transaction ID to edit: "; // Tìm kiếm ID giao dịch cần chỉnh sửa
         cin >> this->transactionID;
 
-        ifstream infile("transactions.csv"); //file chính dùng để đọc
-        ofstream tempFile("temp.csv"); //file ghi tạm
+        ifstream infile("transactions.csv"); // file chính dùng để đọc
+        ofstream tempFile("temp.csv");       // file ghi tạm
         bool isEdited = false;
 
         if (infile.is_open() && tempFile.is_open())
@@ -112,7 +109,37 @@ public:
 
                 if (stoi(ID) == transactionID) // Nếu trùng ID
                 {
-                    //Ghi lại những dữ liệu mới thay cho dữ liệu cũ
+                    // Tiếp tuc sửa những nội dung muốn sửa
+                    cout << "Editing transaction with ID: " << this->transactionID << endl;
+                    cout << "Enter new details:" << endl;
+
+                    cout << "Transaction ID: ";
+                    cin >> this->transactionID;
+
+                    cout << "Account ID: ";
+                    cin >> this->accountID;
+
+                    cout << "Transaction Type: ";
+                    cin.ignore(); // Để loại bỏ ký tự thừa
+                    getline(cin, this->transactionType);
+
+                    cout << "Amount: ";
+                    cin >> this->amount;
+
+                    cout << "Enter transaction date (day month year): ";
+                    cin >> this->date.day >> this->date.month >> this->date.year;
+
+                    cout << "Note: ";
+                    cin.ignore(); // Để loại bỏ ký tự thừa
+                    getline(cin, this->note);
+
+                    cout << "Category: ";
+                    getline(cin, this->category);
+
+                    cout << "Payment Method (e.g., Cash, Credit): ";
+                    getline(cin, this->paymentMethod);
+
+                    //Ghi những thông tin vừa thay đổi vào file tạm
                     tempFile << this->transactionID << ","
                              << this->accountID << ","
                              << this->transactionType << ","
@@ -131,7 +158,7 @@ public:
             infile.close();
             tempFile.close();
 
-            remove("transactions.csv"); // xoá file cũ
+            remove("transactions.csv");             // xoá file cũ
             rename("temp.csv", "transactions.csv"); // dùng file tạm để làm file mới và đổi tên
 
             if (isEdited)
@@ -149,9 +176,9 @@ public:
         }
     }
 
-    void deleteTransaction() //Cho phép người dùng xoá một giao dịch nếu ID giao dịch cần xoá có tồn tại
+    void deleteTransaction() // Cho phép người dùng xoá một giao dịch nếu ID giao dịch cần xoá có tồn tại
     {
-        cout << "Enter the transaction ID to delete: "; //Tìm kiếm ID giao dịch cần xoá
+        cout << "Enter the transaction ID to delete: "; // Tìm kiếm ID giao dịch cần xoá
         cin >> this->transactionID;
 
         ifstream infile("transactions.csv");
@@ -197,7 +224,7 @@ public:
         }
     }
 
-    list<Transaction> viewTransactionHistory() //Hiển thị các giao dịch trước đó và những giao dịch gần nhất
+    list<Transaction> viewTransactionHistory() // Hiển thị các giao dịch trước đó và những giao dịch gần nhất
     {
         list<Transaction> transactions;
         ifstream infile("transactions.csv");
@@ -207,16 +234,16 @@ public:
             string line;
             while (getline(infile, line))
             {
-                stringstream ss(line); // tách giá trị 
+                stringstream ss(line); // tách giá trị
                 string ID, AccountID, Type, Amount, dateStr, Note, Category, PaymentMethod;
 
-                getline(ss, ID, ','); // Lấy ID giao dịch.
-                getline(ss, AccountID, ','); // Lấy ID tài khoản.
-                getline(ss, Type, ','); // Lấy loại giao dịch.
-                getline(ss, Amount, ','); // Lấy số tiền.
-                getline(ss, dateStr, ','); // Lấy ngày.
-                getline(ss, Note, ','); // Lấy ghi chú.
-                getline(ss, Category, ','); // Lấy danh mục.
+                getline(ss, ID, ',');            // Lấy ID giao dịch.
+                getline(ss, AccountID, ',');     // Lấy ID tài khoản.
+                getline(ss, Type, ',');          // Lấy loại giao dịch.
+                getline(ss, Amount, ',');        // Lấy số tiền.
+                getline(ss, dateStr, ',');       // Lấy ngày.
+                getline(ss, Note, ',');          // Lấy ghi chú.
+                getline(ss, Category, ',');      // Lấy danh mục.
                 getline(ss, PaymentMethod, ','); // Lấy phương thức thanh toán.
 
                 Transaction t;
