@@ -37,6 +37,9 @@ public:
         this->accountID = 0;
         this->amount = 0.0;
         this->date = {0, 0, 0};
+        this->note = "";
+        this->category = "";
+        this->paymentMethod = "";
     }
 
     void addTransaction() //Cho phép người dùng thêm một giao dịch mới
