@@ -1,10 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <ctime>
-#include <iomanip> // Để sử dụng std::get_time
-#include <vector>
+#pragma once
 
 #include <iostream>
 #include <fstream>
