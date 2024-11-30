@@ -65,14 +65,14 @@ public:
         stringToTm(dateStr, endDate); // Chuyển đổi ngày kết thúc thành std::tm
 
         // Mở file để ghi ngân sách vào
-        ofstream infile("Budgets.csv", ios::app);
-        if (infile.is_open()) // Kiểm tra xem file có mở thành công không
+        ofstream outfile("Budgets.csv", ios::app);
+        if (outfile.is_open()) // Kiểm tra xem file có mở thành công không
         {
             // Ghi dữ liệu ngân sách vào file
-            infile << budgetID << "," << userID << "," << amount << "," << category << ","
+            outfile << budgetID << "," << userID << "," << amount << "," << category << ","
                    << tmToString(startDate) << "," << tmToString(endDate) << "\n";
             cout << "Budget added successfully!" << endl;
-            infile.close(); // Đóng file sau khi ghi xong
+            outfile.close(); // Đóng file sau khi ghi xong
         }
         else
         {
