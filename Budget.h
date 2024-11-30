@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 #include <ctime>
-#include <iomanip> // Để sử dụng std::get_time
+#include <iomanip> // Để sử dụng get_time
 #include <vector>
 
 using namespace std;
@@ -17,8 +17,8 @@ private:
     int userID;      // Mã người dùng
     double amount;   // Số tiền ngân sách
     string category; // Danh mục ngân sách
-    std::tm startDate; // Ngày bắt đầu
-    std::tm endDate;   // Ngày kết thúc
+    tm startDate; // Ngày bắt đầu
+    tm endDate;   // Ngày kết thúc
 
 public:
     // Hàm để chuyển đổi từ std::tm sang chuỗi (định dạng YYYY-MM-DD)
@@ -32,8 +32,8 @@ public:
     // Hàm để chuyển đổi từ chuỗi sang std::tm (sử dụng std::get_time)
     void stringToTm(const string &dateStr, std::tm &t)
     {
-        std::istringstream ss(dateStr); // Chuyển chuỗi thành dòng
-        ss >> std::get_time(&t, "%Y-%m-%d"); // Cố gắng chuyển chuỗi thành std::tm
+        istringstream ss(dateStr); // Chuyển chuỗi thành dòng
+        ss >> get_time(&t, "%Y-%m-%d"); // Cố gắng chuyển chuỗi thành std::tm
         if (ss.fail()) // Nếu không thành công
         {
             cerr << "Failed to parse date: " << dateStr << endl; // Hiển thị lỗi
