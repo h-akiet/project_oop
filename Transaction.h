@@ -27,7 +27,6 @@ private:
     Date date;
     string note;
     string category;
-    string paymentMethod;
 
 public:
     // Hàm khởi tạo
@@ -66,8 +65,6 @@ public:
         cout << "Category: ";
         getline(cin, this->category);
 
-        cout << "Payment Method (e.g., Cash, Credit): ";
-        getline(cin, this->paymentMethod);
 
         ofstream outfile("transactions.csv", ios::app); // Mở file ở chế độ ghi
         if (outfile.is_open())                          // Nếu mở file thành công
@@ -78,8 +75,8 @@ public:
                     << fixed << setprecision(2) << this->amount << "," // Định dạng số dư đến chữ số thập phân thứ 2
                     << this->date.day << "/" << this->date.month << "/" << this->date.year << ","
                     << this->note << ","
-                    << this->category << ","
-                    << this->paymentMethod << "\n";
+                    << this->category << ",";
+                    
             outfile.close();
             cout << "Transaction added successfully!\n";
         }
@@ -136,9 +133,6 @@ public:
                     cout << "Category: ";
                     getline(cin, this->category);
 
-                    cout << "Payment Method (e.g., Cash, Credit): ";
-                    getline(cin, this->paymentMethod);
-
                     //Ghi những thông tin vừa thay đổi vào file tạm
                     tempFile << this->transactionID << ","
                              << this->accountID << ","
@@ -146,8 +140,7 @@ public:
                              << fixed << setprecision(2) << this->amount << ","
                              << this->date.day << "/" << this->date.month << "/" << this->date.year << ","
                              << this->note << ","
-                             << this->category << ","
-                             << this->paymentMethod << "\n";
+                             << this->category << ",";
                     isEdited = true;
                 }
                 else
@@ -244,7 +237,6 @@ public:
                 getline(ss, dateStr, ',');       // Lấy ngày.
                 getline(ss, Note, ',');          // Lấy ghi chú.
                 getline(ss, Category, ',');      // Lấy danh mục.
-                getline(ss, PaymentMethod, ','); // Lấy phương thức thanh toán.
 
                 Transaction t;
                 t.transactionID = stoi(ID);
@@ -257,7 +249,6 @@ public:
 
                 t.note = Note;
                 t.category = Category;
-                t.paymentMethod = PaymentMethod;
 
                 transactions.push_back(t);
             }
