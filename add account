@@ -1,0 +1,69 @@
+#include <fstream>
+#include <iostream>
+#include <string>
+using namespace std;
+//chỉ định nghĩa phương thức Add Account
+class Account
+{
+private:
+    int accountID;
+    string accountName;
+    string accountType;
+    double balance;
+    string currency;
+
+public:
+    void addAccount() 
+    {
+        cout << "Adding a new account:" << endl;
+
+        // Nhập thông tin tài khoản
+        cout << "Enter Account ID: ";
+        cin >> this->accountID;
+
+        cout << "Enter Account Name: ";
+        cin.ignore(); // Bỏ qua ký tự xuống dòng còn lại trong bộ đệm
+        getline(cin, this->accountName);
+
+        cout << "Enter Account Type (e.g., Savings, Checking): ";
+        getline(cin, this->accountType);
+
+        cout << "Enter Initial Balance: ";
+        cin >> this->balance;
+        while (cin.fail() || balance < 0) 
+        {
+            cin.clear();            // Xóa lỗi nhập
+            cin.ignore(1000, '\n'); // Bỏ qua dữ liệu còn lại trong bộ đệm
+            cout << "Invalid balance. Please enter a non-negative value: ";
+            cin >> this->balance;
+        }
+
+        cout << "Enter Currency (e.g., USD, VND): "; 
+        cin >> this->currency;
+
+        // Ghi thông tin vào file CSV
+        ofstream outFile("Accounts.csv", ios::app); // Mở file accounts.csv ở chế độ append (ghi thêm)
+        
+        // Kiểm tra nếu file không mở được
+        if (!outFile.is_open()) 
+        {
+            cout << "Error opening file for writing." << endl;
+            return;
+        }
+
+        // Ghi thông tin tài khoản vào file CSV
+        outFile << accountID << "," 
+                << accountName << ","
+                << accountType << ","
+                << balance << ","
+                << currency << "\n";
+
+        outFile.close(); // Đóng file sau khi ghi
+
+        cout << "Account added successfully and saved to file!" << endl;
+    }
+
+    void editAccount();
+    void deleteAccount();
+    double viewBalance();
+};
