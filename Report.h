@@ -325,12 +325,14 @@ public:
 
         if (reportContent.find("generated successfully") != string::npos) // Nếu báo cáo đã được tạo thành công
         {
-            ofstream outfile("report.txt"); // Mở tệp để ghi báo cáo
+            ofstream outfile("Reports.csv"); // Mở tệp để ghi báo cáo vào file CSV
             if (outfile.is_open())
             {
-                outfile << reportContent; // Ghi nội dung báo cáo vào tệp
+                // Ghi nội dung báo cáo vào file CSV
+                // Bạn có thể chỉnh sửa định dạng CSV theo cách bạn muốn. Dưới đây là ví dụ cơ bản:
+                outfile << reportContent; // Ghi báo cáo vào file
                 outfile.close();          // Đóng tệp
-                return "Report exported to report.txt successfully.";
+                return "Report exported to report.csv successfully.";
             }
             else
             {
