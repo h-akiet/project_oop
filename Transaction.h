@@ -19,7 +19,7 @@ struct Date
 
 class Transaction
 {
-private:
+public:
     int transactionID;
     int accountID;
     string transactionType;
@@ -27,8 +27,6 @@ private:
     Date date;
     string note;
     string category;
-
-public:
     // Hàm khởi tạo
     Transaction()
     {
@@ -36,6 +34,8 @@ public:
         this->accountID = 0;
         this->amount = 0.0;
         this->date = {0, 0, 0};
+        this->note = "";
+        this->category = "";
     }
 
     void addTransaction() // Cho phép người dùng thêm một giao dịch mới
