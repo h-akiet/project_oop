@@ -12,15 +12,14 @@ using namespace std;
 
 class Budget
 {
-private:
+public:
     int budgetID;    // Mã ngân sách
     int userID;      // Mã người dùng
     double amount;   // Số tiền ngân sách
     string category; // Danh mục ngân sách
     tm startDate; // Ngày bắt đầu
     tm endDate;   // Ngày kết thúc
-
-public:
+    
     // Hàm để chuyển đổi từ std::tm sang chuỗi (định dạng YYYY-MM-DD)
     string tmToString(const std::tm &t) const
     {
