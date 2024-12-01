@@ -18,7 +18,7 @@ struct Date
 
 class Loan
 {
-private:
+public:
     int loanID;
     int userID;
     double amount;
@@ -27,8 +27,6 @@ private:
     Date dueDate;
     string note;
     string status;
-
-public:
     // Hàm khởi tạo
     Loan()
     {
