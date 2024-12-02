@@ -1,0 +1,116 @@
+#include <vector>
+#include <numeric>
+#include <cmath>
+using namespace std;
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+//Hàm vẽ biểu đồ Donut
+void DrawDonutChart(CDC* pDC, CRect rect, const vector<int>& data, const vector<CString>& labels, const vector<COLORREF>& colors) {
+	// Tổng giá trị của tất cả các phần
+	int total = accumulate(data.begin(), data.end(), 0);
+	if (total == 0) return;
+
+	// Xác định bán kính và tâm của hình tròn
+	int outerRadius = min(rect.Width(), rect.Height()) / 2 - 50; // Bán kính ngoài (chừa thêm lề)
+	int innerRadius = outerRadius / 2; // Bán kính trong
+	CPoint center = rect.CenterPoint();
+
+	// Góc bắt đầu
+	double startAngle = 0.0;
+
+	// Phông chữ cho số liệu %
+	CFont font;
+	font.CreatePointFont(100, _T("Arial"));
+	CFont* oldFont = pDC->SelectObject(&font);
+
+	// Vẽ từng phần của biểu đồ
+	for (size_t i = 0; i < data.size(); ++i) {
+		// Góc quét
+		double sweepAngle = 360.0 * data[i] / total;
+
+		// Hình chữ nhật bao quanh hình tròn ngoài
+		CRect outerRect(center.x - outerRadius, center.y - outerRadius, center.x + outerRadius, center.y + outerRadius);
+
+		// Vẽ phần bánh
+		CBrush brush(colors[i]);
+		CBrush* oldBrush = pDC->SelectObject(&brush);
+		pDC->Pie(outerRect,
+			CPoint(center.x + outerRadius * cos(startAngle * M_PI / 180.0),
+				center.y - outerRadius * sin(startAngle * M_PI / 180.0)),
+			CPoint(center.x + outerRadius * cos((startAngle + sweepAngle) * M_PI / 180.0),
+				center.y - outerRadius * sin((startAngle + sweepAngle) * M_PI / 180.0)));
+		pDC->SelectObject(oldBrush);
+
+		// Hiển thị % bên trong phần bánh
+		double midAngle = startAngle + sweepAngle / 2;
+		int percent = static_cast<int>(round(100.0 * data[i] / total));
+		CString percentText;
+		percentText.Format(_T("%d%%"), percent);
+		int textX = center.x + (outerRadius + innerRadius) / 2 * cos(midAngle * M_PI / 180.0); // Điểm giữa
+		int textY = center.y - (outerRadius + innerRadius) / 2 * sin(midAngle * M_PI / 180.0);
+		pDC->SetTextColor(RGB(0, 0, 0));
+		pDC->SetBkMode(TRANSPARENT);
+		pDC->DrawText(percentText, CRect(textX - 20, textY - 10, textX + 20, textY + 10), DT_CENTER | DT_SINGLELINE | DT_VCENTER);
+
+		// Vẽ nhãn bên ngoài vòng tròn
+		int labelX = center.x + (outerRadius + 30) * cos(midAngle * M_PI / 180.0); // 30 là khoảng cách từ mép
+		int labelY = center.y - (outerRadius + 30) * sin(midAngle * M_PI / 180.0);
+		pDC->TextOut(labelX, labelY, labels[i]);
+
+		// Cập nhật góc bắt đầu
+		startAngle += sweepAngle;
+	}
+
+	// Vẽ phần trống bên trong (khoảng trắng)
+	CRect innerRect(center.x - innerRadius, center.y - innerRadius, center.x + innerRadius, center.y + innerRadius);
+	CBrush whiteBrush(RGB(255, 255, 255)); // Màu trắng cho phần trống
+	CBrush* oldBrush = pDC->SelectObject(&whiteBrush);
+	pDC->Ellipse(innerRect);
+	pDC->SelectObject(oldBrush);
+
+	// Vẽ viền ngoài đậm hơn
+	CPen outerPen(PS_SOLID, 3, RGB(0, 0, 0)); // Viền ngoài màu đen, dày 3px
+	CPen* oldPen = pDC->SelectObject(&outerPen);
+	pDC->Arc(CRect(center.x - outerRadius, center.y - outerRadius, center.x + outerRadius, center.y + outerRadius), CPoint(0, 0), CPoint(0, 0));
+	pDC->SelectObject(oldPen);
+
+	// Vẽ viền trong đậm hơn
+	CPen innerPen(PS_SOLID, 3, RGB(0, 0, 0)); // Viền trong màu đen, dày 3px
+	oldPen = pDC->SelectObject(&innerPen);
+	pDC->Arc(CRect(center.x - innerRadius, center.y - innerRadius, center.x + innerRadius, center.y + innerRadius), CPoint(0, 0), CPoint(0, 0));
+	pDC->SelectObject(oldPen);
+
+	// Khôi phục phông chữ ban đầu
+	pDC->SelectObject(oldFont);
+}
+
+void CBieuDoTronDlg::OnPaint() {
+	CPaintDC dc(this); // Device context for painting
+	CRect rect;
+	GetClientRect(&rect);
+
+	if (rect.Width() <= 0 || rect.Height() <= 0) {
+		AfxMessageBox(_T("Vùng vẽ quá nhỏ!"));
+		return;
+	}
+
+	// Dữ liệu mẫu
+	// Dữ liệu mẫu biểu thị tỷ lệ phần trăm (hoặc số liệu) của từng phần trong biểu đồ
+	vector<int> data = { 25, 15, 30, 20, 10 };
+
+	// Nhãn cho từng phần của biểu đồ (A, B, C, D, E tương ứng với các phần dữ liệu)
+	vector<CString> labels = { _T("A"), _T("B"), _T("C"), _T("D"), _T("E") };
+
+	// Màu sắc cho từng phần của biểu đồ (đỏ, xanh lá cây, xanh dương, vàng, hồng)
+	vector<COLORREF> colors = { RGB(255, 0, 0), RGB(0, 255, 0), RGB(0, 0, 255), RGB(255, 255, 0), RGB(255, 0, 255) };
+
+	if (data.empty()) {
+		AfxMessageBox(_T("Dữ liệu rỗng!"));
+		return;
+	}
+
+	// Vẽ biểu đồ tròn
+	DrawDonutChart(&dc, rect, data, labels, colors);
+}
