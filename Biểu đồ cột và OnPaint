@@ -1,0 +1,123 @@
+#include <vector>
+using namespace std;
+
+// Hàm vẽ biểu đồ cột
+void DrawBarChart(CDC* pDC, CRect rect, const vector<int>& data, const vector<CString>& labels) {
+	// Xác định các tham số cơ bản
+	int barCount = data.size();
+	if (barCount == 0) return;
+
+	// Điều chỉnh vùng vẽ để chừa khoảng trống cho trục và nhãn
+	rect.DeflateRect(60, 20, 20, 40); // Bên trái: 60, trên: 20, phải: 20, dưới: 40
+
+	int maxValue = *std::max_element(data.begin(), data.end());
+	int barWidth = rect.Width() / (2 * barCount); // Chiều rộng của mỗi cột
+	int spacing = barWidth; // Khoảng cách giữa các cột
+
+	// Tính tỷ lệ để vẽ cột
+	float scale = static_cast<float>(rect.Height()) / maxValue;
+
+	// Tạo các đối tượng bút, bút vẽ
+	CPen gridPen(PS_DOT, 1, RGB(200, 200, 200)); // Bút vẽ lưới nhạt
+	CPen axisPen(PS_SOLID, 2, RGB(0, 0, 0));    // Bút vẽ trục X và Y
+	CBrush brush(RGB(100, 150, 200));           // Màu cột
+	CFont font;
+	font.CreatePointFont(90, _T("Arial"));
+
+	CFont* pOldFont = pDC->SelectObject(&font);
+
+	// Vẽ trục Y
+	pDC->SelectObject(&axisPen);
+	pDC->MoveTo(rect.left, rect.top);
+	pDC->LineTo(rect.left, rect.bottom);
+
+	// Vẽ lưới ngang và giá trị trục Y
+	pDC->SelectObject(&gridPen);
+	int stepY = maxValue / 5; // Chia thành 5 mức
+	for (int i = 0; i <= 5; ++i) {
+		int y = rect.bottom - static_cast<int>(i * stepY * scale);
+		pDC->MoveTo(rect.left, y);
+		pDC->LineTo(rect.right, y);
+
+		CString valueText;
+		valueText.Format(_T("%d"), i * stepY);
+		pDC->TextOut(rect.left - 40, y - 10, valueText); // Hiển thị giá trị Y
+	}
+
+	// Vẽ trục X
+	pDC->SelectObject(&axisPen);
+	pDC->MoveTo(rect.left, rect.bottom);
+	pDC->LineTo(rect.right, rect.bottom);
+
+	// Vẽ các cột
+	for (int i = 0; i < barCount; ++i) {
+		int barHeight = static_cast<int>(data[i] * scale);
+		int x = rect.left + (i * (barWidth + spacing)) + spacing / 2;
+		int y = rect.bottom - barHeight;
+
+		CRect barRect(x, y, x + barWidth, rect.bottom);
+
+		// Vẽ cột
+		pDC->SelectObject(&brush);
+		pDC->Rectangle(barRect);
+
+		// Hiển thị giá trị trên đầu cột
+		CString valueText;
+		valueText.Format(_T("%d"), data[i]);
+		CSize textSize = pDC->GetTextExtent(valueText);
+		int valueX = x + (barWidth - textSize.cx) / 2;
+		int valueY = y - textSize.cy - 5;
+		pDC->TextOut(valueX, valueY, valueText);
+
+		// Vẽ nhãn trục X
+		CString label = labels[i];
+		CSize labelSize = pDC->GetTextExtent(label);
+		int labelX = x + (barWidth - labelSize.cx) / 2;
+		int labelY = rect.bottom + 10; // Dời xuống dưới
+		pDC->TextOut(labelX, labelY, label);
+	}
+
+	// Phục hồi font cũ
+	pDC->SelectObject(pOldFont);
+}
+
+// Nằm ở dưới cùng của fileDlg.cpp
+void CBieuDoCotDlg::OnPaint()
+{
+	if (IsIconic())
+	{
+		CPaintDC dc(this); // device context for painting
+
+		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
+
+		// Center icon in client rectangle
+		int cxIcon = GetSystemMetrics(SM_CXICON);
+		int cyIcon = GetSystemMetrics(SM_CYICON);
+		CRect rect;
+		GetClientRect(&rect);
+		int x = (rect.Width() - cxIcon + 1) / 2;
+		int y = (rect.Height() - cyIcon + 1) / 2;
+
+		// Draw the icon
+		dc.DrawIcon(x, y, m_hIcon);
+	}
+	else
+	{
+		// Vẽ nội dung khi cửa sổ ở trạng thái bình thường
+		CPaintDC dc(this);
+
+		// Xác định vùng để vẽ
+		CRect clientRect;
+		GetClientRect(&clientRect);
+
+		// Dữ liệu mẫu
+		vector<int> data = { 10, 30, 20, 50, 40 }; // Giá trị của các cột
+		vector<CString> labels = { _T("A"), _T("B"), _T("C"), _T("D"), _T("E") }; // Nhãn cho các cột
+
+		// Gọi hàm vẽ biểu đồ
+		DrawBarChart(&dc, clientRect, data, labels);
+
+		// Gọi phương thức mặc định để xử lý các vẽ khác (nếu cần)
+		CDialogEx::OnPaint();
+	}
+}
