@@ -19,15 +19,15 @@ struct Date
     int year;
 };
 
-vector<int> getAccountIDsFromFiles(const string &directory)
+vector<string> getAccountIDsFromFiles(const string &directory)
 {
-    vector<int> accountIDs;
+    vector<string> accountNames;
 
-    // Regular expression để tìm các file có dạng "transactions_<accountID>.csv"
-    regex filePattern(R"(transactions_(\d+)\.csv)");
+    // Regular expression để tìm file có dạng "transactions_<accountName>.csv"
+    regex filePattern(R"(transactions_(.+)\.csv)"); // Chấp nhận tên account bất kỳ
 
     // Duyệt qua tất cả file trong thư mục
-    for (const auto &entry : std::filesystem::directory_iterator(directory))
+    for (const auto &entry : filesystem::directory_iterator(directory))
     {
         string filename = entry.path().filename().string();
         smatch match;
@@ -35,20 +35,30 @@ vector<int> getAccountIDsFromFiles(const string &directory)
         // Kiểm tra nếu tên file khớp với định dạng mong muốn
         if (regex_match(filename, match, filePattern))
         {
-            // Lấy accountID từ nhóm khớp đầu tiên
-            int accountID = stoi(match[1].str());
-            accountIDs.push_back(accountID);
+            // Lấy accountName từ nhóm khớp đầu tiên
+            string accountName = match[1].str();
+            accountNames.push_back(accountName);
+        }
+        else
+        {
+            cout << "File skipped (not matching pattern): " << filename << endl;
         }
     }
 
-    return accountIDs;
+    if (accountNames.empty())
+    {
+        cerr << "No valid transaction files found in directory: " << directory << "\n";
+    }
+
+    return accountNames;
 }
+
 
 class Transaction
 {
 public:
     int transactionID;
-    int accountID;
+    string accountName;
     string transactionType;
     double amount;
     Date date;
@@ -58,7 +68,7 @@ public:
     Transaction()
     {
         this->transactionID = 0;
-        this->accountID = 0;
+        this->accountName = "";
         this->amount = 0.0;
         this->date = {0, 0, 0};
         this->note = "";
@@ -72,11 +82,11 @@ public:
         cout << "Transaction ID: ";
         cin >> this->transactionID;
 
-        cout << "Account ID: ";
-        cin >> this->accountID;
+        cout << "Account name: ";
+        cin.ignore(); // Để loại bỏ ký tự thừa
+        getline(cin, this->accountName);
 
         cout << "Transaction Type: ";
-        cin.ignore(); // Để loại bỏ ký tự thừa
         getline(cin, this->transactionType);
 
         cout << "Amount: ";
@@ -89,23 +99,18 @@ public:
         cin.ignore(); // Để loại bỏ ký tự thừa
         getline(cin, this->note);
 
-        cout << "Category: ";
-        getline(cin, this->category);
-
         // Tên file dựa trên ID của tài khoản
-        string filename = "transactions_" + to_string(this->accountID) + ".csv";
+        string filename = "transactions_" + (this->accountName) + ".csv";
 
         ofstream outfile(filename, ios::app); // Mở file riêng cho tài khoản
         if (outfile.is_open())                // Nếu mở file thành công
         {
             outfile << this->transactionID << ","
-                    << this->accountID << ","
+                    << this->accountName << ","
                     << this->transactionType << ","
                     << fixed << setprecision(2) << this->amount << ","
                     << this->date.day << "/" << this->date.month << "/" << this->date.year << ","
-                    << this->note << ","
-                    << this->category << "\n";
-
+                    << this->note << "," << "\n";
             outfile.close();
             cout << "Transaction added successfully to file: " << filename << "\n";
         }
@@ -117,35 +122,43 @@ public:
 
     void editTransaction()
     {
-        cout << "Enter the account ID to edit transaction: ";
-        cin >> this->accountID;
+        cout << "Enter the account name to edit transaction: ";
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        getline(cin, this->accountName);
 
         cout << "Enter the transaction ID to edit: ";
         cin >> this->transactionID;
 
-        // Tên file dựa trên accountID
-        string filename = "transactions_" + to_string(this->accountID) + ".csv";
+        string filename = "transactions_" + this->accountName + ".csv";
         ifstream infile(filename);
-        ofstream tempFile("temp.csv"); // File tạm để ghi dữ liệu mới
+        ofstream tempFile("temp.csv");
         bool isEdited = false;
 
-        if (infile.is_open() && tempFile.is_open())
+        if (!infile.is_open() || !tempFile.is_open())
         {
-            string line;
-            while (getline(infile, line))
-            {
-                stringstream ss(line);
-                string ID;
-                getline(ss, ID, ','); // Lấy transactionID từ file
+            cerr << "Error opening file.\n";
+            return;
+        }
 
+        string line;
+        bool fileHasData = false;
+
+        while (getline(infile, line))
+        {
+            fileHasData = true; // File có dữ liệu
+            stringstream ss(line);
+            string ID;
+            getline(ss, ID, ','); // Lấy transactionID từ file
+
+            try
+            {
                 if (stoi(ID) == this->transactionID) // Nếu trùng ID
                 {
-                    // Yêu cầu nhập dữ liệu mới
                     cout << "Editing transaction with ID: " << this->transactionID << endl;
                     cout << "Enter new details:" << endl;
 
                     cout << "Transaction Type: ";
-                    cin.ignore(); // Để loại bỏ ký tự thừa
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     getline(cin, this->transactionType);
 
                     cout << "Amount: ";
@@ -155,20 +168,16 @@ public:
                     cin >> this->date.day >> this->date.month >> this->date.year;
 
                     cout << "Note: ";
-                    cin.ignore(); // Để loại bỏ ký tự thừa
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     getline(cin, this->note);
 
-                    cout << "Category: ";
-                    getline(cin, this->category);
-
-                    // Ghi dữ liệu mới vào file tạm
                     tempFile << this->transactionID << ","
-                             << this->accountID << ","
+                             << this->accountName << ","
                              << this->transactionType << ","
                              << fixed << setprecision(2) << this->amount << ","
                              << this->date.day << "/" << this->date.month << "/" << this->date.year << ","
-                             << this->note << ","
-                             << this->category << "\n";
+                             << this->note << "\n";
+
                     isEdited = true;
                 }
                 else
@@ -176,38 +185,47 @@ public:
                     tempFile << line << "\n"; // Ghi dòng cũ nếu không chỉnh sửa
                 }
             }
-            infile.close();
-            tempFile.close();
+            catch (const exception &e)
+            {
+                cerr << "Error parsing transaction ID: " << e.what() << "\n";
+                tempFile << line << "\n"; // Ghi dòng lỗi vào file tạm
+            }
+        }
 
-            // Thay thế file cũ bằng file tạm
+        infile.close();
+        tempFile.close();
+
+        if (!fileHasData)
+        {
+            cerr << "The file is empty or does not exist: " << filename << "\n";
+            remove("temp.csv"); // Xóa file tạm nếu file gốc trống
+            return;
+        }
+
+        if (isEdited)
+        {
             remove(filename.c_str());
             rename("temp.csv", filename.c_str());
-
-            if (isEdited)
-            {
-                cout << "Transaction edited successfully in file: " << filename << "\n";
-            }
-            else
-            {
-                cerr << "Transaction ID not found in file: " << filename << "\n";
-            }
+            cout << "Transaction edited successfully in file: " << filename << "\n";
         }
         else
         {
-            cerr << "Error opening file.\n";
+            cerr << "Transaction ID not found in file: " << filename << "\n";
+            remove("temp.csv"); // Xóa file tạm nếu không chỉnh sửa
         }
     }
 
     void deleteTransaction()
     {
-        cout << "Enter the account ID to delete transaction: ";
-        cin >> this->accountID;
+        cout << "Enter the account name to delete transaction: ";
+        cin.ignore();
+        getline(cin, this->accountName);
 
         cout << "Enter the transaction ID to delete: ";
         cin >> this->transactionID;
 
         // Tên file dựa trên accountID
-        string filename = "transactions_" + to_string(this->accountID) + ".csv";
+        string filename = "transactions_" + (this->accountName) + ".csv";
         ifstream infile(filename);
         ofstream tempFile("temp.csv"); // File tạm để ghi dữ liệu mới
         bool isDeleted = false;
@@ -257,7 +275,7 @@ public:
         list<Transaction> transactions;
 
         // Tự động lấy danh sách accountID từ file
-        vector<int> accountIDs = getAccountIDsFromFiles(directory);
+        vector<string> accountNames = getAccountIDsFromFiles(directory);
 
         // File tổng hợp để ghi tất cả giao dịch
         string consolidatedFile = "all_transactions.csv";
@@ -270,11 +288,11 @@ public:
         }
 
         // Thêm tiêu đề vào file tổng hợp
-        consolidatedOutput << "TransactionID,AccountID,TransactionType,Amount,Date,Note,Category\n";
+        consolidatedOutput << "TransactionID,AccountName,TransactionType,Amount,Date,Note\n";
 
-        for (int accountID : accountIDs)
+        for (const string &account_Name : accountNames)
         {
-            string filename = directory + "/transactions_" + to_string(accountID) + ".csv";
+            string filename = directory + "/transactions_" + account_Name + ".csv"; // Đảm bảo đúng đường dẫn
             ifstream infile(filename);
 
             if (infile.is_open())
@@ -283,33 +301,41 @@ public:
                 while (getline(infile, line))
                 {
                     stringstream ss(line); // Tách giá trị từ mỗi dòng
-                    string ID, AccountID, Type, Amount, dateStr, Note, Category;
+                    string ID, AccountName, Type, Amount, dateStr, Note, Category;
 
-                    getline(ss, ID, ',');        // Lấy transactionID
-                    getline(ss, AccountID, ','); // Lấy accountID
-                    getline(ss, Type, ',');      // Lấy loại giao dịch
-                    getline(ss, Amount, ',');    // Lấy số tiền
-                    getline(ss, dateStr, ',');   // Lấy ngày
-                    getline(ss, Note, ',');      // Lấy ghi chú
-                    getline(ss, Category, ',');  // Lấy danh mục
+                    getline(ss, ID, ',');          // Lấy transactionID
+                    getline(ss, AccountName, ','); // Lấy accountName
+                    getline(ss, Type, ',');        // Lấy transactionType
+                    getline(ss, Amount, ',');      // Lấy amount
+                    getline(ss, dateStr, ',');     // Lấy date
+                    getline(ss, Note, ',');        // Lấy note
 
                     Transaction t;
                     t.transactionID = stoi(ID);
-                    t.accountID = stoi(AccountID);
+                    t.accountName = AccountName;
                     t.transactionType = Type;
                     t.amount = stod(Amount);
 
-                    // Chuyển đổi chuỗi ngày thành đối tượng Date
-                    sscanf(dateStr.c_str(), "%d/%d/%d", &t.date.day, &t.date.month, &t.date.year);
+                    // Chuyển đổi ngày tháng
+                    stringstream dateStream(dateStr);
+                    string day, month, year;
+                    getline(dateStream, day, '/');
+                    getline(dateStream, month, '/');
+                    getline(dateStream, year, '/');
+                    t.date = {stoi(day), stoi(month), stoi(year)};
 
                     t.note = Note;
-                    t.category = Category;
 
-                    // Thêm giao dịch vào danh sách
+                    // Ghi giao dịch vào danh sách
                     transactions.push_back(t);
 
-                    // Ghi dòng vào file tổng hợp
-                    consolidatedOutput << line << "\n";
+                    // Ghi vào file tổng hợp
+                    consolidatedOutput << t.transactionID << ","
+                                       << t.accountName << ","
+                                       << t.transactionType << ","
+                                       << fixed << setprecision(2) << t.amount << ","
+                                       << t.date.day << "/" << t.date.month << "/" << t.date.year << ","
+                                       << t.note << "\n";
                 }
                 infile.close();
             }
@@ -318,9 +344,9 @@ public:
                 cerr << "Error opening file: " << filename << "\n";
             }
         }
+        consolidatedOutput.close();
 
-        consolidatedOutput.close(); // Đóng file tổng hợp sau khi ghi xong
-        cout << "All transactions have been consolidated into file: " << consolidatedFile << "\n";
+        cout << "All transactions have been consolidated into: " << consolidatedFile << "\n";
 
         return transactions;
     }
